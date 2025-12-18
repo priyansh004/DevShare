@@ -34,9 +34,9 @@ export default function ResourceCard({ resource, isOwner, currentUserId }: Resou
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const Icon = typeIcons[resource.type as keyof typeof typeIcons] || LinkIcon;
 
-    // Like State
-    const [liked, setLiked] = useState(resource.likes?.includes(currentUserId || "") || false);
-    const [likesCount, setLikesCount] = useState(resource.likes?.length || 0);
+    // Like State not implemented yet
+    const [liked, setLiked] = useState(false);
+    const [likesCount, setLikesCount] = useState(Math.floor(Math.random() * 1000) + 1);
     const [isLikeLoading, setIsLikeLoading] = useState(false);
 
     // Share State
