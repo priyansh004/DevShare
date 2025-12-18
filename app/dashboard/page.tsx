@@ -20,11 +20,11 @@ export default async function DashboardPage() {
         {/* Content Area */}
         <div className="p-6">
           {/* Welcome Card */}
-          <div className="mb-6 rounded-2xl bg-gradient-to-r from-primary to-primary-dark p-6 text-white shadow-lg">
-            <h2 className="text-2xl font-bold">
+          <div className="mb-6 rounded-2xl bg-gradient-to-r from-primary-light to-primary p-6 shadow-lg">
+            <h2 className="text-2xl font-bold text-primary-darker">
               Welcome back, {user.name || user.email}!
             </h2>
-            <p className="mt-2 text-primary-light">
+            <p className="mt-2 text-primary-dark">
               Here's what's happening with your projects today.
             </p>
           </div>
