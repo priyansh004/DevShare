@@ -1,12 +1,20 @@
 "use client";
 
-import { signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense, useEffect } from "react";
 
 function SignInContent() {
+  const { data: session } = useSession();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
+
+  useEffect(() => {
+    if (session) {
+      router.push("/dashboard");
+    }
+  }, [session, router]);
 
   const handleGoogleSignIn = () => {
     signIn("google", { callbackUrl: "/dashboard" });
@@ -85,7 +93,7 @@ function SignInContent() {
           </div>
           <div className="relative flex justify-center text-sm">
             <span className="bg-white px-2 text-gray-500">
-              Secure authentication powered by NextAuth
+              powered by NextAuth
             </span>
           </div>
         </div>
