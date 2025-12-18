@@ -1,16 +1,45 @@
 import { requireAuth } from "@/lib/protect-server";
 import clientPromise from "@/lib/db/mongodb";
 import ResourceCard from "@/components/resource-card";
+import ResourceFilters from "@/components/resource-filters";
 import { Resource } from "@/types/resource";
 
-async function getResources() {
+interface DashboardPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+async function getResources(searchParams: { [key: string]: string | string[] | undefined }) {
   const client = await clientPromise;
   const db = client.db();
 
+  const { search, type, sort } = searchParams;
+
+  // Build Query
+  const query: any = { isDeleted: false };
+
+  if (search && typeof search === 'string') {
+    const searchRegex = { $regex: search, $options: "i" };
+    query.$or = [
+      { title: searchRegex },
+      { description: searchRegex },
+      { authorName: searchRegex }
+    ];
+  }
+
+  if (type && typeof type === 'string') {
+    query.type = type;
+  }
+
+  // Build Sort
+  const sortOption: any = { createdAt: -1 }; // Default Newest
+  if (sort === "oldest") {
+    sortOption.createdAt = 1;
+  }
+
   const resources = await db
     .collection("resources")
-    .find({ isDeleted: false })
-    .sort({ createdAt: -1 })
+    .find(query)
+    .sort(sortOption)
     .toArray();
 
   return resources.map(r => ({
@@ -22,9 +51,10 @@ async function getResources() {
   })) as unknown as Resource[];
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage(props: DashboardPageProps) {
+  const searchParams = await props.searchParams;
   const user = await requireAuth();
-  const resources = await getResources();
+  const resources = await getResources(searchParams);
 
   return (
     <>
@@ -44,11 +74,21 @@ export default async function DashboardPage() {
           </h2>
         </div>
 
+        {/* Filters and Search */}
+        <ResourceFilters />
+
         <div className="mb-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 px-2">Latest Resources</h3>
+          <h3 className="text-lg font-bold text-gray-900 mb-4 px-2">
+            {resources.length} {resources.length === 1 ? 'Resource' : 'Resources'} Found
+          </h3>
           {resources.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-xl border border-gray-200 border-dashed">
-              <p className="text-gray-500">No resources shared yet. Be the first to post!</p>
+              <p className="text-gray-500">No resources found matching your criteria.</p>
+              {Object.keys(searchParams).length > 0 && (
+                <a href="/dashboard" className="mt-2 inline-block text-sm text-primary hover:underline">
+                  Clear Filters
+                </a>
+              )}
             </div>
           ) : (
             <div className="flex flex-col gap-4">

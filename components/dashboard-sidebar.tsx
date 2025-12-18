@@ -77,12 +77,45 @@ export default function DashboardSidebar() {
                 </nav>
 
                 {/* User Section */}
-                {/* <div className="border-t border-gray-200 p-4">
-                    <SignOutButton />
-                </div> */}
+                <div className="border-t border-gray-200 p-4">
+                    <UserPill />
+                </div>
             </aside>
 
             <CreateResourceModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         </>
+    );
+}
+
+import { useSession } from "next-auth/react";
+import { EllipsisHorizontalIcon } from "@heroicons/react/24/outline";
+
+function UserPill() {
+    const { data: session } = useSession();
+    const user = session?.user;
+
+    if (!user) return null;
+
+    return (
+        <div className="flex items-center gap-3 rounded-full p-2 hover:bg-gray-100 cursor-pointer transition-colors">
+            <div className="h-10 w-10 flex-shrink-0">
+                {user.image ? (
+                    <img
+                        src={user.image}
+                        alt={user.name || "User"}
+                        className="h-full w-full rounded-full object-cover"
+                    />
+                ) : (
+                    <div className="flex h-full w-full items-center justify-center rounded-full bg-primary-light text-xl font-bold text-primary-darker uppercase">
+                        {(user.name?.[0] || user.email?.[0] || "U").toUpperCase()}
+                    </div>
+                )}
+            </div>
+            <div className="hidden xl:block min-w-0 flex-1">
+                <p className="truncate font-bold text-gray-900">{user.name || "User"}</p>
+                <p className="truncate text-sm text-gray-500">{user.email}</p>
+            </div>
+            <EllipsisHorizontalIcon className="hidden xl:block h-5 w-5 text-gray-400" />
+        </div>
     );
 }
