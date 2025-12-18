@@ -78,7 +78,9 @@ export default function DashboardSidebar() {
 
                 {/* User Section */}
                 <div className="border-t border-gray-200 p-4">
-                    <UserPill />
+                    <Link href="/dashboard/profile" className="block">
+                        <UserPill />
+                    </Link>
                 </div>
             </aside>
 

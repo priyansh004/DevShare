@@ -1,6 +1,6 @@
 import { requireAuth } from "@/lib/protect-server";
 import clientPromise from "@/lib/db/mongodb";
-import SignOutButton from "@/components/sign-out-button";
+import ProfileLogoutButton from "@/components/profile-logout-button";
 import {
     PencilSquareIcon,
     Cog6ToothIcon,
@@ -96,6 +96,7 @@ export default async function ProfilePage() {
                             <PencilSquareIcon className="h-4 w-4" />
                             Edit Profile
                         </button>
+
                     </div>
                 </div>
 
@@ -134,12 +135,13 @@ export default async function ProfilePage() {
                             </div>
                             <span className="text-gray-400">→</span>
                         </button>
+
+                        <div className="pt-2 border-t border-gray-100 mt-2">
+                            <ProfileLogoutButton />
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex justify-center py-4">
-                    <SignOutButton />
-                </div>
             </div>
         </>
     );

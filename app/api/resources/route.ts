@@ -31,13 +31,45 @@ async function fetchOgData(url: string) {
 // GET /api/resources - Get all non-deleted resources
 export async function GET(request: NextRequest) {
     try {
+        const { searchParams } = new URL(request.url);
+        const search = searchParams.get("search");
+        const type = searchParams.get("type");
+        const sort = searchParams.get("sort") || "newest";
+        const page = parseInt(searchParams.get("page") || "1");
+        const limit = parseInt(searchParams.get("limit") || "10");
+        const skip = (page - 1) * limit;
+
         const client = await clientPromise;
         const db = client.db();
 
+        // Build Query
+        const query: any = { isDeleted: false };
+
+        if (search) {
+            const searchRegex = { $regex: search, $options: "i" };
+            query.$or = [
+                { title: searchRegex },
+                { description: searchRegex },
+                { authorName: searchRegex }
+            ];
+        }
+
+        if (type) {
+            query.type = type;
+        }
+
+        // Build Sort
+        const sortOption: any = { createdAt: -1 };
+        if (sort === "oldest") {
+            sortOption.createdAt = 1;
+        }
+
         const resources = await db
             .collection("resources")
-            .find({ isDeleted: false })
-            .sort({ createdAt: -1 })
+            .find(query)
+            .sort(sortOption)
+            .skip(skip)
+            .limit(limit)
             .toArray();
 
         // Convert ObjectId to string for the client

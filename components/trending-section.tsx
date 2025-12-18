@@ -26,7 +26,7 @@ export default function TrendingSection() {
     );
 
     return (
-        <div className="rounded-2xl bg-gray-50 p-4">
+        <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-gray-200/50">
             <div className="mb-4 flex items-center gap-2">
                 <ArrowTrendingUpIcon className="h-5 w-5 text-gray-900" />
                 <h3 className="text-lg font-bold text-gray-900">What's happening</h3>

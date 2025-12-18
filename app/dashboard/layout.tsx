@@ -8,7 +8,7 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-primary-light/40">
             <div className="mx-auto flex max-w-7xl">
                 {/* Left Sidebar */}
                 <DashboardSidebar />
