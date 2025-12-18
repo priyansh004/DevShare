@@ -98,8 +98,10 @@ export async function POST(request: NextRequest) {
         const client = await clientPromise;
         const db = client.db();
 
-        const newResource: Omit<Resource, "_id"> = {
+        const newResource = {
             userId: userId, // Use resolved userId
+            authorName: session?.user?.name || "Anonymous",
+            authorImage: session?.user?.image || undefined,
             title,
             description,
             type,

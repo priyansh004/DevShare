@@ -10,9 +10,11 @@ export interface Resource {
     ogTitle?: string;
     ogDescription?: string;
     ogImage?: string;
+    authorName?: string;
+    authorImage?: string;
     isDeleted: boolean;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface CreateResourceInput {

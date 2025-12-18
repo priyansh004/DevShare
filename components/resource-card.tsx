@@ -48,7 +48,9 @@ export default function ResourceCard({ resource, isOwner }: ResourceCardProps) {
                             <h3 className="font-semibold text-gray-900 group-hover:text-primary-dark transition-colors line-clamp-1">
                                 {resource.title}
                             </h3>
-                            <p className="text-xs text-gray-500 capitalize">{resource.type} • {date}</p>
+                            <p className="text-xs text-gray-500 capitalize">
+                                {resource.authorName ? <span className="font-medium text-gray-700">{resource.authorName}</span> : "Anonymous"} • {resource.type} • {date}
+                            </p>
                         </div>
                     </div>
 
