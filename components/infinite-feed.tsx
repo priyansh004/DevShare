@@ -68,8 +68,12 @@ export default function InfiniteFeed({ initialResources, userId }: InfiniteFeedP
         }
     }, [isObserveOutput, isValidating, data, size, setSize]);
 
-    // Flatten data arrays
-    const resources = data ? data.flat() : [];
+    // Flatten data arrays and deduplicate for safety
+    const allResources = data ? data.flat() : [];
+    const resources = allResources.filter((resource, index, self) =>
+        index === self.findIndex((r) => r._id === resource._id)
+    );
+
     const isEmpty = resources.length === 0;
     const isEnd = data && data[data.length - 1]?.length < 10;
 
