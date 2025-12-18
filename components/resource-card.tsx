@@ -8,8 +8,11 @@ import {
     AcademicCapIcon,
     BookOpenIcon,
     LinkIcon,
-    PencilSquareIcon
+    PencilSquareIcon,
+    HeartIcon,
+    ShareIcon
 } from "@heroicons/react/24/outline";
+import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
 import CreateResourceModal from "./create-resource-modal";
 
 const typeIcons = {
@@ -24,11 +27,49 @@ const typeIcons = {
 interface ResourceCardProps {
     resource: Resource;
     isOwner?: boolean;
+    currentUserId?: string;
 }
 
-export default function ResourceCard({ resource, isOwner }: ResourceCardProps) {
+export default function ResourceCard({ resource, isOwner, currentUserId }: ResourceCardProps) {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const Icon = typeIcons[resource.type as keyof typeof typeIcons] || LinkIcon;
+
+    // Like State
+    const [liked, setLiked] = useState(resource.likes?.includes(currentUserId || "") || false);
+    const [likesCount, setLikesCount] = useState(resource.likes?.length || 0);
+    const [isLikeLoading, setIsLikeLoading] = useState(false);
+
+    // Share State
+    const [copied, setCopied] = useState(false);
+
+    const handleLike = async () => {
+        if (!currentUserId || isLikeLoading) return;
+
+        // Optimistic update
+        const previousLiked = liked;
+        const previousCount = likesCount;
+
+        setLiked(!liked);
+        setLikesCount((prev: number) => liked ? prev - 1 : prev + 1);
+        setIsLikeLoading(true);
+
+        try {
+            const res = await fetch(`/api/resources/${resource._id}/like`, { method: 'POST' });
+            if (!res.ok) throw new Error();
+        } catch (error) {
+            // Revert
+            setLiked(previousLiked);
+            setLikesCount(previousCount);
+        } finally {
+            setIsLikeLoading(false);
+        }
+    };
+
+    const handleShare = () => {
+        navigator.clipboard.writeText(resource.link);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     // Format date
     const date = new Date(resource.createdAt).toLocaleDateString("en-US", {
@@ -98,17 +139,40 @@ export default function ResourceCard({ resource, isOwner }: ResourceCardProps) {
                     </a>
                 )}
 
-                {!resource.ogTitle && !resource.ogImage && (
-                    <a
-                        href={resource.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-dark hover:underline"
-                    >
-                        <LinkIcon className="h-4 w-4" />
-                        Visit Resource
-                    </a>
-                )}
+                {/* Actions Row */}
+                <div className="flex items-center justify-between border-t border-gray-100 pt-4 mt-4">
+                    <div className="flex items-center gap-6">
+                        <button
+                            onClick={handleLike}
+                            className={`flex items-center gap-2 text-sm font-medium transition-colors ${liked ? "text-red-500" : "text-gray-500 hover:text-red-500"
+                                }`}
+                        >
+                            {liked ? <HeartIconSolid className="h-5 w-5" /> : <HeartIcon className="h-5 w-5" />}
+                            <span>{likesCount}</span>
+                        </button>
+
+                        <button
+                            onClick={handleShare}
+                            className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-primary transition-colors"
+                            title="Copy Link"
+                        >
+                            <ShareIcon className="h-5 w-5" />
+                            <span>{copied ? "Copied!" : "Share"}</span>
+                        </button>
+                    </div>
+
+                    {!resource.ogTitle && !resource.ogImage && (
+                        <a
+                            href={resource.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-dark hover:underline"
+                        >
+                            <LinkIcon className="h-4 w-4" />
+                            Visit
+                        </a>
+                    )}
+                </div>
             </div>
 
             <CreateResourceModal
