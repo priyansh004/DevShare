@@ -1,0 +1,92 @@
+import { Resource } from "@/types/resource";
+import {
+    VideoCameraIcon,
+    DocumentTextIcon,
+    AcademicCapIcon,
+    BookOpenIcon,
+    LinkIcon
+} from "@heroicons/react/24/outline";
+
+const typeIcons = {
+    video: VideoCameraIcon,
+    article: DocumentTextIcon,
+    tutorial: AcademicCapIcon,
+    course: AcademicCapIcon,
+    book: BookOpenIcon,
+    other: LinkIcon,
+};
+
+interface ResourceCardProps {
+    resource: Resource;
+}
+
+export default function ResourceCard({ resource }: ResourceCardProps) {
+    const Icon = typeIcons[resource.type] || LinkIcon;
+
+    // Format date
+    const date = new Date(resource.createdAt).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+    });
+
+    return (
+        <div className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 transition-all hover:shadow-md hover:ring-primary/20">
+            <div className="mb-4 flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-light text-primary-darker">
+                        <Icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <h3 className="font-semibold text-gray-900 group-hover:text-primary-dark transition-colors">
+                            {resource.title}
+                        </h3>
+                        <p className="text-xs text-gray-500 capitalize">{resource.type} • {date}</p>
+                    </div>
+                </div>
+            </div>
+
+            <p className="mb-4 text-sm text-gray-600 line-clamp-3">
+                {resource.description}
+            </p>
+
+            {/* Link Preview Card */}
+            {(resource.ogTitle || resource.ogImage) && (
+                <a
+                    href={resource.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mb-4 block overflow-hidden rounded-xl border border-gray-200 bg-gray-50 transition-colors hover:bg-gray-100"
+                >
+                    {resource.ogImage && (
+                        <div className="h-40 w-full overflow-hidden">
+                            <img
+                                src={resource.ogImage}
+                                alt={resource.ogTitle || "Preview"}
+                                className="h-full w-full object-cover"
+                            />
+                        </div>
+                    )}
+                    <div className="p-3">
+                        <h4 className="font-semibold text-gray-900 line-clamp-1">{resource.ogTitle || resource.title}</h4>
+                        {resource.ogDescription && (
+                            <p className="mt-1 text-xs text-gray-500 line-clamp-2">{resource.ogDescription}</p>
+                        )}
+                        <p className="mt-2 text-xs text-gray-400 truncate">{new URL(resource.link).hostname}</p>
+                    </div>
+                </a>
+            )}
+
+            {!resource.ogTitle && !resource.ogImage && (
+                <a
+                    href={resource.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-dark hover:underline"
+                >
+                    <LinkIcon className="h-4 w-4" />
+                    Visit Resource
+                </a>
+            )}
+        </div>
+    );
+}

@@ -7,6 +7,9 @@ export interface Resource {
     description: string;
     type: ResourceType;
     link: string;
+    ogTitle?: string;
+    ogDescription?: string;
+    ogImage?: string;
     isDeleted: boolean;
     createdAt: Date;
     updatedAt: Date;

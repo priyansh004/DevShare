@@ -4,6 +4,29 @@ import { authOptions } from "@/lib/auth";
 import clientPromise from "@/lib/db/mongodb";
 import { CreateResourceInput, Resource } from "@/types/resource";
 import { ObjectId } from "mongodb";
+import * as cheerio from "cheerio";
+
+// Helper to fetch OG data
+async function fetchOgData(url: string) {
+    try {
+        const response = await fetch(url, {
+            headers: {
+                "User-Agent": "bot/1.0", // Some sites block requests without UA
+            },
+        });
+        const html = await response.text();
+        const $ = cheerio.load(html);
+
+        const ogTitle = $('meta[property="og:title"]').attr("content") || $('title').text();
+        const ogDescription = $('meta[property="og:description"]').attr("content") || $('meta[name="description"]').attr("content");
+        const ogImage = $('meta[property="og:image"]').attr("content");
+
+        return { ogTitle, ogDescription, ogImage };
+    } catch (error) {
+        console.error("Failed to fetch OG data:", error);
+        return {};
+    }
+}
 
 // GET /api/resources - Get all non-deleted resources
 export async function GET(request: NextRequest) {
@@ -45,8 +68,8 @@ export async function POST(request: NextRequest) {
             userId = session.user.id;
         }
 
-        // DEV BACKDOOR: Allow 'x-dev-user-id' header in development only
-        if (!userId && process.env.NODE_ENV === "development") {
+        // DEV BACKDOOR: Allow 'x-dev-user-id' header ONLY if explicitly enabled
+        if (!userId && process.env.ENABLE_DEV_BACKDOOR === "true") {
             const devUserId = request.headers.get("x-dev-user-id");
             if (devUserId) {
                 console.log("⚠️ USING DEV USER ID:", devUserId);
@@ -69,6 +92,9 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // Fetch OG Data
+        const ogData = await fetchOgData(link);
+
         const client = await clientPromise;
         const db = client.db();
 
@@ -78,6 +104,7 @@ export async function POST(request: NextRequest) {
             description,
             type,
             link,
+            ...ogData,
             isDeleted: false,
             createdAt: new Date(),
             updatedAt: new Date(),
