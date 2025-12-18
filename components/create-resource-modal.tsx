@@ -12,7 +12,7 @@ const resourceSchema = z.object({
     title: z.string().min(3, "Title must be at least 3 characters"),
     description: z.string().min(10, "Description must be at least 10 characters"),
     type: z.enum(["video", "article", "tutorial", "course", "book", "other"], {
-        errorMap: () => ({ message: "Please select a resource type" }),
+        message: "Please select a resource type",
     }),
     link: z.string().url("Please enter a valid URL"),
 });
