@@ -36,7 +36,7 @@ export default function DashboardSidebar() {
 
     return (
         <>
-            <aside className="sticky top-0 flex h-screen w-64 flex-col border-r border-gray-200 bg-white">
+            <aside className="hidden sticky top-0 h-screen w-64 flex-col bg-white xl:w-72 lg:flex">
                 {/* Logo/Brand */}
                 <div className="flex h-16 items-center px-6">
                     <Link href="/dashboard" className="text-2xl font-bold text-primary-darker">
